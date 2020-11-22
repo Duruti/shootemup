@@ -32,7 +32,7 @@ document.addEventListener("keydown",function(e){
 })
 
 for (i=0; i<5 ; i++){
-   createEnemy(newRandom_x((gameDraw.offsetWidth - ship.offsetWidth)),0)
+  // createEnemy(newRandom_x((gameDraw.offsetWidth - ship.offsetWidth)),0)
 }
 function newRandom_x(max){
    let v = Math.random()*max 
@@ -60,7 +60,7 @@ function createbullet(x=0,y=0,t){
 setInterval(update,16);
 function update(){
   // bullets = document.querySelectorAll('.bullet');
-  // console.log(bullets.length)
+   
    for (i=bullets.length-1 ; i>=0 ; i--){
       // console.log(element)
       element = bullets[i];
@@ -68,8 +68,9 @@ function update(){
       let y = parseInt(element.style.top.match(regex).join(''));
       y = y+element.speed;
       element.style.top  = y + 'px';
-      if (y< 0){
-         bullets.splice(i,1)
+      if (y<0 ){
+         element.remove();
+         bullets.splice(i,1);
       }
    };
 }

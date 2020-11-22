@@ -2,18 +2,21 @@ let ship = document.querySelector('#ship')
 let gameDraw = document.querySelector('#gameDraw')
 let startGame = document.querySelector('.startGame')
 let gameInfo = document.querySelector('.gameInfo')
+console.log(gameDraw)
+
 // liste
 let bullets = [];
 let enemies = [];
 
 let timer = 0;
 let currentState = "wait"
-//console.log(gameDraw);
-ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
-ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px';
-speed = 10  ;
-timeShitShoot = 0
+let speed = 10  ;
+let timeShitShoot = 0
+let ratioSpeed = Math.floor(gameDraw.offsetWidth/1200)
 window.onload = ()=>{
+   ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
+   ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px';
+   
    console.log("chargé")
    document.addEventListener("keydown",function(e){ 
      
@@ -33,12 +36,12 @@ window.onload = ()=>{
       let x = parseInt(ship.style.left.match(regex).join(''));
       let y = parseInt(ship.style.top.match(regex).join(''));
       if (e.keyCode === 39){
-         x += speed;
+         x += speed*ratioSpeed;
          if (x<0) x = 0;
          if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
       }
       if (e.keyCode === 37){
-         x -= speed;
+         x -= speed*ratioSpeed;
          if (x<0) x = 0;
       }
       if (e.keyCode === 32){
@@ -93,13 +96,15 @@ function createbullet(x=0,y=0,t){
 function update(){
    if (currentState === 'wait') return;
    if (enemies.length <= 0) victory();
+
+   ratioSpeed = Math.floor(gameDraw.offsetWidth/1200);
    timer += 1;
 
    for (i=bullets.length-1 ; i>=0 ; i--){  // update bullet
       let bullet = bullets[i];
       let regex = /[0-9]/g; 
       let y = parseInt(bullet.style.top.match(regex).join(''));
-      y = y+bullet.speed;
+      y = y+bullet.speed*ratioSpeed;
       bullet.style.top  = y + 'px';
       // regarde si collision avec le ship
       if (bullet.speed>0) {
@@ -143,7 +148,7 @@ function updateEnemy(){
       let regex = /[0-9]/g; 
       let x = parseInt(enemy.style.left.match(regex).join(''));
       let y = parseInt(enemy.style.top.match(regex).join(''));
-      x = x + enemy.speed;
+      x = x + enemy.speed*ratioSpeed;
       if (x<=0) {
          x= 0;
          enemy.speed = -enemy.speed
@@ -215,7 +220,7 @@ function initGame(){
    timeShitShoot = 0
    ship.style.top =  Math.floor(gameDraw.offsetHeight - ship.offsetHeight*2) + 'px';
    ship.style.left = Math.floor(gameDraw.offsetWidth/2  - ship.offsetWidth/2) + 'px'
-   for (i=0; i<(newRandom(3)+4) ; i++){
-      createEnemy(newRandom(Math.floor(gameDraw.offsetWidth - ship.offsetWidth)),Math.floor(ship.offsetHeight*1.4*i))
+   for (i=0; i<(newRandom(2)+4) ; i++){
+      createEnemy(newRandom(Math.floor(gameDraw.offsetWidth - ship.offsetWidth)),Math.floor(ship.offsetHeight*1.1*i))
     }
 }

@@ -1,18 +1,32 @@
 let ship = document.querySelector('#ship')
 let gameDraw = document.querySelector('#gameDraw')
-
+let startGame = document.querySelector('.startGame')
+let gameInfo = document.querySelector('.gameInfo')
 // liste
 let bullets = [];
 let enemies = [];
 
 let timer = 0;
+let currentState = "wait"
 //console.log(gameDraw);
-ship.style.top = '500px';
-ship.style.left = '100px'
-let speed = 5  ;
-
+ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
+ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px';
+speed = 10  ;
+timeShitShoot = 0
 document.addEventListener("keydown",function(e){ 
-  // console.log(e)
+  
+   if (currentState === 'gameover') return;
+   if (currentState === 'wait'){
+      if (e.keyCode === 32){
+         console.log("initGame")
+         currentState = 'game';
+         startGame.classList.toggle("hidden");
+         gameInfo.classList.toggle("hidden");
+         initGame()
+      }
+      return
+   }
+   
    let regex = /[0-9]/g;
    let x = parseInt(ship.style.left.match(regex).join(''));
    let y = parseInt(ship.style.top.match(regex).join(''));
@@ -26,16 +40,17 @@ document.addEventListener("keydown",function(e){
       if (x<0) x = 0;
    }
    if (e.keyCode === 32){
+      if (timeShitShoot<=timer){
          createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
+         timeShitShoot = timer + 30;
+      }  
 
    }
    ship.style.left = x+"px";
    
 })
 
-for (i=0; i<5 ; i++){
-  createEnemy(newRandom((gameDraw.offsetWidth - ship.offsetWidth)),50*i)
-}
+
 function newRandom(max){
    let v = Math.floor(Math.random()*max )
    return v
@@ -46,48 +61,52 @@ function createEnemy(x=0,y=0){
    newEnemy.style.top = y+"px"
    newEnemy.style.left = x+"px"
    newEnemy.timeShoot = 100+ newRandom(100); 
+   
    // Calcul de la direction
    let direction = 1
    if(newRandom(100)%2 == 0 ) direction = -1;
-   newEnemy.speed = 2 * direction;
+   newEnemy.speed = (3+newRandom(4)) * direction;
    gameDraw.appendChild(newEnemy);
-  
-   console.log(newEnemy)
    enemies.push(newEnemy);
 }
 function createbullet(x=0,y=0,t){
    let newBullet = document.createElement("div");
    newBullet.className ="bullet"
    newBullet.classList.add('bullet'+t);
-   newBullet.style.top = y+"px"
-   newBullet.style.left = x+"px"
+   newBullet.style.top = Math.floor(y)+"px"
+   newBullet.style.left = Math.floor(x)+"px"
 
    newBullet.speed = -8 ;
    gameDraw.appendChild(newBullet);
    bullets.push(newBullet)
    return newBullet;
 }
+// Game loop
 
 setInterval(update,16);
+
 function update(){
-  // bullets = document.querySelectorAll('.bullet');
+   if (currentState === 'wait') return;
+   if (enemies.length <= 0) victory();
    timer += 1;
-   for (i=bullets.length-1 ; i>=0 ; i--){
-      // console.log(element)
-      let element = bullets[i];
+
+   for (i=bullets.length-1 ; i>=0 ; i--){  // update bullet
+      let bullet = bullets[i];
       let regex = /[0-9]/g; 
-      let y = parseInt(element.style.top.match(regex).join(''));
-      y = y+element.speed;
-      element.style.top  = y + 'px';
+      let y = parseInt(bullet.style.top.match(regex).join(''));
+      y = y+bullet.speed;
+      bullet.style.top  = y + 'px';
       // regarde si collision avec le ship
-      if (element.speed>0) {
-         if (collide(element,ship)){
-            element.remove();
+      if (bullet.speed>0) {
+         if (collide(bullet,ship)){
+            bullet.remove();
             bullets.splice(i,1);
+            gameover()
+            return
          }
       }
-      if (y<0 || y>gameDraw.offsetHeight-element.offsetHeight){
-         element.remove();
+      if (y<0 || y>gameDraw.offsetHeight-bullet.offsetHeight){
+         bullet.remove();
          bullets.splice(i,1);
       }
    };
@@ -115,40 +134,83 @@ function collide(obj1,obj2){
 
 function updateEnemy(){
    for (i=enemies.length-1 ; i>=0 ; i--){
-      let element = enemies[i];
+      let enemy = enemies[i];
       let regex = /[0-9]/g; 
-      let x = parseInt(element.style.left.match(regex).join(''));
-      let y = parseInt(element.style.top.match(regex).join(''));
-      x = x + element.speed;
+      let x = parseInt(enemy.style.left.match(regex).join(''));
+      let y = parseInt(enemy.style.top.match(regex).join(''));
+      x = x + enemy.speed;
       if (x<=0) {
          x= 0;
-         element.speed = -element.speed
+         enemy.speed = -enemy.speed
       }
-      if (x>(gameDraw.offsetWidth - element.offsetWidth)){
-         x= gameDraw.offsetWidth - element.offsetWidth;
-         element.speed = -element.speed
+      if (x>(gameDraw.offsetWidth - enemy.offsetWidth)){
+         x= gameDraw.offsetWidth - enemy.offsetWidth;
+         enemy.speed = -enemy.speed
       }
-       element.style.left  = x + 'px';
+       enemy.style.left  = x + 'px';
       // collision bulletShip ?
       for (n=bullets.length-1 ; n>=0 ; n--){
-         let b = bullets[n];
+         let bullet = bullets[n];
          // regarde si collision avec le ship
-         if (b.speed<0) {
-            if (collide(element,b)){
-               b.remove();
+         if (bullet.speed<0) {
+            if (collide(enemy,bullet)){
+               bullet.remove();
                bullets.splice(n,1);
-               element.remove()
+               enemy.remove()
                enemies.splice(i,1);
+               return;
             }
          }
        };
       
       
        // shoot ?
-      if (element.timeShoot<= timer){
+      if (enemy.timeShoot<= timer){
          let b =createbullet(x,y,"Enemy");
-         b.speed = 2;
-         element.timeShoot = timer + 100 + newRandom(200);
+         b.speed = 6;
+         enemy.timeShoot = timer + 100 + newRandom(200);
       }
    }
+}
+function victory(){
+   clearList()
+   currentState = 'wait'
+   startGame.classList.toggle("hidden");
+   gameInfo.innerText = "YOU WIN"
+   gameInfo.classList.toggle("hidden");
+   ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
+   ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px'
+
+}
+function gameover(){
+   currentState = 'wait'
+   //reset bullet
+   clearList();
+   ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
+   ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px'
+   startGame.classList.toggle("hidden");
+   gameInfo.innerText = "GAME OVER"
+   gameInfo.classList.toggle("hidden");
+}
+function clearList(){
+   for (n=bullets.length-1 ; n>=0 ; n--){
+      let b = bullets[n];
+      b.remove();
+      bullets.splice(n,1);
+    };
+   
+    for (n=enemies.length-1 ; n>=0 ; n--){
+      let e = enemies[n];
+      e.remove();
+      enemies.splice(n,1);
+    };
+}
+
+function initGame(){
+   timeShitShoot = 0
+   ship.style.top =  Math.floor(gameDraw.offsetHeight - ship.offsetHeight*2) + 'px';
+   ship.style.left = Math.floor(gameDraw.offsetWidth/2  - ship.offsetWidth/2) + 'px'
+   for (i=0; i<(newRandom(3)+4) ; i++){
+      createEnemy(newRandom(Math.floor(gameDraw.offsetWidth - ship.offsetWidth)),Math.floor(ship.offsetHeight*1.4*i))
+    }
 }

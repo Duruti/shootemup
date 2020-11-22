@@ -7,7 +7,11 @@ console.log(gameDraw)
 // liste
 let bullets = [];
 let enemies = [];
-
+let keys = {
+   right: false,
+   left : false,
+   space : false
+}
 let timer = 0;
 let currentState = "wait"
 let speed = 10  ;
@@ -18,40 +22,62 @@ window.onload = ()=>{
    ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px';
    
    console.log("chargé")
-   document.addEventListener("keydown",function(e){ 
-     
-      if (currentState === 'gameover') return;
-      if (currentState === 'wait'){
-         if (e.keyCode === 32){
-            console.log("initGame")
-            currentState = 'game';
-            startGame.classList.toggle("hidden");
-            gameInfo.classList.toggle("hidden");
-            initGame()
-         }
-         return
+   document.addEventListener("keyup",function(e){
+      if (e.keyCode === 32){
+         keys.space = false
       }
-      
-      let regex = /[0-9]/g;
-      let x = parseInt(ship.style.left.match(regex).join(''));
-      let y = parseInt(ship.style.top.match(regex).join(''));
       if (e.keyCode === 39){
-         x += Math.floor(speed*ratioSpeed)
-         if (x<0) x = 0;
-         if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
+         keys.right = false
       }
       if (e.keyCode === 37){
-         x -= Math.floor(speed*ratioSpeed)
-         if (x<0) x = 0;
+         keys.left = false
       }
+   })
+
+   document.addEventListener("keydown",function(e){ 
+   
+      if (currentState === 'gameover') return;
+      // if (currentState === 'wait'){
+      //    if (e.keyCode === 32){
+      //       console.log("initGame")
+      //       currentState = 'game';
+      //       startGame.classList.toggle("hidden");
+      //       gameInfo.classList.toggle("hidden");
+      //       initGame()
+      //    }
+      //    return
+      // }
       if (e.keyCode === 32){
-         if (timeShitShoot<=timer){
-            createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
-            timeShitShoot = timer + 30;
-         }  
-         
+         keys.space = true
       }
-      ship.style.left = x+"px";
+      if (e.keyCode === 39){
+         keys.right = true
+      }
+      if (e.keyCode === 37){
+         keys.left = true
+      }
+      // return
+
+      // let regex = /[0-9]/g;
+      // let x = parseInt(ship.style.left.match(regex).join(''));
+      // let y = parseInt(ship.style.top.match(regex).join(''));
+      // if (e.keyCode === 39){
+      //    x += Math.floor(speed*ratioSpeed)
+      //    if (x<0) x = 0;
+      //    if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
+      // }
+      // if (e.keyCode === 37){
+      //    x -= Math.floor(speed*ratioSpeed)
+      //    if (x<0) x = 0;
+      // }
+      // if (e.keyCode === 32){
+      //    if (timeShitShoot<=timer){
+      //       createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
+      //       timeShitShoot = timer + 30;
+      //    }  
+         
+      // }
+      // ship.style.left = x+"px";
       
    })
    
@@ -94,7 +120,22 @@ function createbullet(x=0,y=0,t){
 
 
 function update(){
-   if (currentState === 'wait') return;
+   if (currentState === 'wait'){
+      if (keys.space){
+         console.log("initGame")
+         currentState = 'game';
+         startGame.classList.toggle("hidden");
+         gameInfo.classList.toggle("hidden");
+         initGame()
+      }
+      return
+   }
+
+   // UPDATE SHIP
+   
+   updateShip()
+
+   //if (currentState === 'wait') return;
    if (enemies.length <= 0) victory();
 
    ratioSpeed = gameDraw.offsetWidth/1200;
@@ -124,7 +165,28 @@ function update(){
 
    updateEnemy();   
 }
-
+function updateShip(){
+      let regex = /[0-9]/g;
+      let x = parseInt(ship.style.left.match(regex).join(''));
+      let y = parseInt(ship.style.top.match(regex).join(''));
+      if (keys.right){
+         x += Math.floor(speed*ratioSpeed)
+         if (x<0) x = 0;
+         if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
+      }
+      if (keys.left){
+         x -= Math.floor(speed*ratioSpeed)
+         if (x<0) x = 0;
+      }
+      if (keys.space){
+         if (timeShitShoot<=timer){
+            createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
+            timeShitShoot = timer + 30;
+         }  
+         
+      }
+      ship.style.left = x+"px";
+}
 function collide(obj1,obj2){
    let regex = /[0-9]/g; 
    let x1 = parseInt(obj1.style.left.match(regex).join(''));

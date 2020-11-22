@@ -98,7 +98,7 @@ function update(){
    if (enemies.length <= 0) victory();
 
    ratioSpeed = gameDraw.offsetWidth/1200;
-   console.log(ratioSpeed)
+   
    timer += 1;
 
    for (i=bullets.length-1 ; i>=0 ; i--){  // update bullet

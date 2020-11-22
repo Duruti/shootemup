@@ -32,7 +32,7 @@ document.addEventListener("keydown",function(e){
 })
 
 for (i=0; i<5 ; i++){
-  // createEnemy(newRandom_x((gameDraw.offsetWidth - ship.offsetWidth)),0)
+  createEnemy(newRandom_x((gameDraw.offsetWidth - ship.offsetWidth)),0)
 }
 function newRandom_x(max){
    let v = Math.random()*max 

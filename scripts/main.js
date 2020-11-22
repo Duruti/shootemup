@@ -13,42 +13,48 @@ ship.style.top =  gameDraw.offsetHeight - ship.offsetHeight*2 + 'px';
 ship.style.left = gameDraw.offsetWidth/2  - ship.offsetWidth/2 + 'px';
 speed = 10  ;
 timeShitShoot = 0
-document.addEventListener("keydown",function(e){ 
-  
-   if (currentState === 'gameover') return;
-   if (currentState === 'wait'){
-      if (e.keyCode === 32){
-         console.log("initGame")
-         currentState = 'game';
-         startGame.classList.toggle("hidden");
-         gameInfo.classList.toggle("hidden");
-         initGame()
+window.onload = ()=>{
+   console.log("chargé")
+   document.addEventListener("keydown",function(e){ 
+     
+      if (currentState === 'gameover') return;
+      if (currentState === 'wait'){
+         if (e.keyCode === 32){
+            console.log("initGame")
+            currentState = 'game';
+            startGame.classList.toggle("hidden");
+            gameInfo.classList.toggle("hidden");
+            initGame()
+         }
+         return
       }
-      return
-   }
+      
+      let regex = /[0-9]/g;
+      let x = parseInt(ship.style.left.match(regex).join(''));
+      let y = parseInt(ship.style.top.match(regex).join(''));
+      if (e.keyCode === 39){
+         x += speed;
+         if (x<0) x = 0;
+         if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
+      }
+      if (e.keyCode === 37){
+         x -= speed;
+         if (x<0) x = 0;
+      }
+      if (e.keyCode === 32){
+         if (timeShitShoot<=timer){
+            createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
+            timeShitShoot = timer + 30;
+         }  
+         
+      }
+      ship.style.left = x+"px";
+      
+   })
    
-   let regex = /[0-9]/g;
-   let x = parseInt(ship.style.left.match(regex).join(''));
-   let y = parseInt(ship.style.top.match(regex).join(''));
-   if (e.keyCode === 39){
-      x += speed;
-      if (x<0) x = 0;
-      if (x>(gameDraw.offsetWidth - ship.offsetWidth)) x = gameDraw.offsetWidth - ship.offsetWidth;
-   }
-   if (e.keyCode === 37){
-      x -= speed;
-      if (x<0) x = 0;
-   }
-   if (e.keyCode === 32){
-      if (timeShitShoot<=timer){
-         createbullet(x + ship.offsetWidth/2,y - ship.offsetHeight,"Ship");
-         timeShitShoot = timer + 30;
-      }  
-
-   }
-   ship.style.left = x+"px";
+   setInterval(update,16);
    
-})
+};
 
 
 function newRandom(max){
@@ -83,7 +89,6 @@ function createbullet(x=0,y=0,t){
 }
 // Game loop
 
-setInterval(update,16);
 
 function update(){
    if (currentState === 'wait') return;

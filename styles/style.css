@@ -1,0 +1,46 @@
+*, ::before, ::after{
+   box-sizing: border-box;
+}
+body{
+   margin: 0;
+   padding: 0;
+}
+.container{
+   width: 80vw;
+   margin: 0 auto;
+}
+#gameDraw{
+   position: relative;
+   width: 100%;
+   height: 600px;
+   background-color: rebeccapurple;
+}
+#ship{
+   position: absolute;
+   width: 5vw;
+   height: 5vw;
+   background-image: url(../ship.png);
+   background-size: cover;
+   background-position: center;
+}
+.enemy{
+   position: absolute;
+   width: 5vw;
+   height: 5vw;
+   background-image: url(../enemy.png);
+   background-size: cover;
+   background-position: center;
+}
+.bullet{
+   position: absolute;
+   width: 0.5vw;
+   height: 2vw;
+   background-size: cover;
+   background-position: center;
+}
+.bulletShip{
+   background-image: url(../bulletShip.png);
+}
+.bulletEnemy{
+   background-image: url(../bulletEnemy.png);
+}
